@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Kategorien:</h1>
+{% for category in categories %}
+<a href="/categorie/{{ category.pk }}/">{{ category.title }}</p></a>
+{% endfor %}
+{% endblock %}
