@@ -12,7 +12,7 @@ class Document(models.Model):
     pages = models.ManyToManyField('documents.Page',null=True)
     version = models.IntegerField(default=1)
     relations = models.ManyToManyField('documents.Relation',null=True)
-    relations = models.ManyToManyField('documents.Category',null=True)
+    categories = models.ManyToManyField('documents.Category',null=True)
     created = models.DateTimeField(auto_now_add=True,null=True)
     modified = models.DateTimeField(auto_now=True, null=True)
 
