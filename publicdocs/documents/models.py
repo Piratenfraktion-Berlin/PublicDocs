@@ -8,17 +8,17 @@ TYPE_CHOICES = (
 
 class Document(models.Model):
     title = models.CharField(max_length=254)
-    author = models.ForeignKey('documents.Author',null=True)
+    author = models.ForeignKey('documents.Author',null=True,blank=True)
     pages = models.ManyToManyField('documents.Page',null=True)
     version = models.IntegerField(default=1)
     relations = models.ManyToManyField('documents.Relation',null=True,blank=True)
-    categories = models.ManyToManyField('documents.Category',null=True)
+    categories = models.ManyToManyField('documents.Category',null=True,blank=True)
     created = models.DateTimeField(auto_now_add=True,null=True)
     modified = models.DateTimeField(auto_now=True, null=True)
 
 class Page(models.Model):
     number = models.IntegerField()
-    paragraphs = models.ManyToManyField('documents.Paragraph')
+    content = models.TextField(null=True)
     created = models.DateTimeField(auto_now_add=True,null=True)
     modified = models.DateTimeField(auto_now=True,null=True)
 
