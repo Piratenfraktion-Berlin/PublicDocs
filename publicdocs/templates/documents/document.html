@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Dokument: {{ document.title }}</h1>
+{% for page in document.pages.all %}
+<img src="{{ MEDIA_URL }}documents/{{ document.slug }}/{{ document.slug }}-{{ forloop.counter0 }}.jpg"/>
+{% endfor %}
+{% endblock %}

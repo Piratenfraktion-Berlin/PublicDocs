@@ -13,6 +13,7 @@ from pdfminer.pdfparser import PDFParser, PDFDocument, PDFNoOutlines
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import LAParams, LTTextBox, LTTextLine, LTFigure, LTImage, LTChar
+from pdfminer.pdftypes import PDFStream, PDFObjRef, resolve_all, stream_value
 
 def with_pdf (pdf_doc, fn, pdf_pwd, *args):
     """Open the pdf document, and apply the function, returning the results"""
@@ -62,6 +63,19 @@ def get_toc (pdf_doc, pdf_pwd=''):
     """Return the table of contents (toc), if any, for this pdf file"""
     return with_pdf(pdf_doc, _parse_toc, pdf_pwd)
 
+###
+### Get Info
+###
+
+def _parse_info(doc):
+    xref = doc.xrefs[0]
+    info_ref=xref.trailer.get('Info')
+    if info_ref:
+        info=resolve_all(info_ref)
+        return info
+
+def get_info(pdf_doc, pdf_pwd=''):
+    return with_pdf(pdf_doc, _parse_info, pdf_pwd)
 
 ###
 ### Extracting Images
@@ -155,14 +169,6 @@ def parse_lt_objs (lt_objs, page_number, images_folder, text=[]):
         if isinstance(lt_obj, LTTextBox) or isinstance(lt_obj, LTTextLine):
             # text, so arrange is logically based on its column width
             page_text = update_page_text_hash(page_text, lt_obj)
-        elif isinstance(lt_obj, LTImage):
-            # an image, so save it to the designated folder, and note its place in the text 
-            saved_file = save_image(lt_obj, page_number, images_folder)
-            if saved_file:
-                # use html style <img /> tag to mark the position of the image within the text
-                text_content.append('<img src="'+os.path.join(images_folder, saved_file)+'" />')
-            else:
-                print >> sys.stderr, "error saving image on page", page_number, lt_obj.__repr__
         elif isinstance(lt_obj, LTFigure):
             # LTFigure objects are containers for other LT* objects, so recurse through the children
             text_content.append(parse_lt_objs(lt_obj, page_number, images_folder, text_content))
