@@ -4,7 +4,7 @@
 <ul>
 {% for apage in pages %}
     {% for document in apage.document.all %}
-       <li> <a href="/document/{{ document.slug }}/?site={{ apage.number }}">Dokument: {{ document.title }} - Seite: {{ apage.number }}</a></li>
+       <li> <a href="/document/{{ document.slug }}/?page={{ apage.number }}">Dokument: {{ document.title }} - Seite: {{ apage.number }}</a></li>
     {% endfor %}
 {% endfor %}
 </li>

@@ -4,11 +4,15 @@ from django.db.models import Q
 import re
 
 from documents.models  import *
+from documents.forms import CommentForm, RelationForm
+
 
 def index(request):
     categories = Category.objects.all()
     authors = Author.objects.all()
-    return render_to_response('documents/index.html',{'categories': categories, 'authors': authors},
+    documents = Document.objects.all().order_by('-created')[:15]
+    comments = Comment.objects.filter(moderated=True).order_by('-created')[:15]
+    return render_to_response('documents/index.html',{'categories': categories, 'authors': authors, 'documents': documents, 'comments': comments},
                             context_instance=RequestContext(request))
 
 def category(request, slug):
@@ -21,7 +25,41 @@ def author(request, slug):
 
 def document(request, slug):
     document = get_object_or_404(Document, slug=slug)
-    return render_to_response('documents/document.html',{'document': document}, context_instance=RequestContext(request)) 
+    comments = Comment.objects.filter(moderated=True, document=document).order_by('-created')
+    relations = document.relations.filter(allowed=True)
+    empty_comment_form = CommentForm()
+    relationForm = RelationForm()
+    relationForm.fields["relatedDocument"].queryset = Document.objects.exclude(id=document.id).order_by('-documentCreated')
+    if 'commentform' in request.POST:
+            comment = Comment(document=Document.objects.get(slug=slug),ip=request.META["REMOTE_ADDR"])
+            emptyform = CommentForm()
+            commentform = CommentForm(request.POST, instance=comment)
+            if commentform.is_valid():
+                comment = commentform.save(commit=False)
+                comment.save()
+                comments = Comment.objects.filter(moderated=True, document=document).order_by('-created')
+                message = "Ihr Kommentar muss noch freigeschaltet werden"
+                return render_to_response('documents/document.html', {'document': document, 'comment_form': emptyform, 'comments': comments, 'message': message, 'relation_form': relationForm, 'relations': relations}, context_instance=RequestContext(request))
+            else:
+                comments = Comment.objects.filter(moderated=True, document=document).order_by('-created')
+                return render_to_response('documents/document.html', {'document': document, 'comment_form': commentform, 'comments': comments, 'relation_form': relationForm, 'relations': relations}, context_instance=RequestContext(request))
+    elif 'relationform' in request.POST:
+            relationform = RelationForm(request.POST)
+            relationform.fields["relatedDocument"].queryset = Document.objects.exclude(id=document.id).order_by('-documentCreated')
+            if relationform.is_valid():
+                relation = relationform.save(commit=False)
+                relation.save()
+                document.relations.add(relation)
+                relation_message = "Die vorgeschlagene Beziehung muss noch freigeschaltet werden"
+                return render_to_response('documents/document.html', {'document': document, 'comment_form': empty_comment_form, 'comments': comments, 'relation_form': relationForm, 'relations': relations, 'relation_message': relation_message}, context_instance=RequestContext(request))
+            else:
+                relation_form_invalid = True
+                return render_to_response('documents/document.html', {'document': document, 'comment_form': empty_comment_form, 'comments': comments, 'relation_form': relationform, 'relations': relations, 'relation_form_invalid': relation_form_invalid},
+                            context_instance=RequestContext(request))
+    else:
+        form = CommentForm()
+        return render_to_response('documents/document.html', {'document': document, 'comment_form': form, 'comments': comments, 'relation_form': relationForm, 'relations': relations},
+                            context_instance=RequestContext(request))
 
 def search(request):
     ''' The search view for handling the search using Django's "Q"-class (see normlize_query and get_query)'''
@@ -32,7 +70,7 @@ def search(request):
         
         entry_query = get_query(query_string, ['document__title', 'content',])
         
-        found_pages = Page.objects.select_related().filter(entry_query).order_by('number')
+        found_pages = Page.objects.select_related().filter(entry_query).order_by('document','number')
 
     return render_to_response('documents/search_results.html',
                           { 'query': query_string, 'pages': found_pages, },

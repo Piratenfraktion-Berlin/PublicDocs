@@ -79,7 +79,7 @@ class Command(BaseCommand):
                         if not os.path.exists("/opt/publicdocs/PublicDocs/publicdocs/media/documents/" + document.slug ):
                             os.makedirs("/opt/publicdocs/PublicDocs/publicdocs/media/documents/" + document.slug)
                         file_name = smart_unicode(files, encoding='utf-8', strings_only=False, errors='strict')
-                        outcode = subprocess.Popen(u"/usr/bin/convert -quality 80% '"  + file_name + "' /opt/publicdocs/PublicDocs/publicdocs/media/documents/" + document.slug + "/" + document.slug + ".jpg", shell=True)
+                        outcode = subprocess.Popen(u"/usr/bin/convert -quality 90% '"  + file_name + "' /opt/publicdocs/PublicDocs/publicdocs/media/documents/" + document.slug + "/" + document.slug + ".jpg", shell=True)
                         while outcode.poll() == None:
                             pass
                         

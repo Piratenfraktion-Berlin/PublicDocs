@@ -1,15 +1,50 @@
 {% extends "base.html" %}
 {% block body %}
-<h1>Kategorien:</h1>
-<ul>
+<div class="row-fluid">
+<div class="span9">
+<div class="hero-unit">
+        <h1>PublicDocs</h1>
+        <p>Dies ist ein System um Dokumente öffentlich einer Interessierten Gruppe zur Verf&uuml;gung zu stellen. Dies ist eine Testinstanz und enth&auml;lt keine relevanten Daten.</p>
+        <p><a class="btn btn-primary btn-large">Mehr Infos &raquo;</a></p>
+</div>
+<div class="row-fluid">
+<div class="span6">
+<h3>Die 15 neusten Dokumente</h2>
+<p>Dies sind die 15 nuesten Dokmente im System, einen Einstieg bietet die Suche</p>
+<ul class="nav nav-list">
+{% for document in documents %}
+<li><a href="/document/{{ document.slug }}/">{{ document.title }}</a></li>
+{% endfor %}
+</ul>
+</div>
+<div class="span6">
+<h3>Die neusten Kommentare</h3>
+<p>Die 15 neusten Kommentare zu Dokumenten</p>
+<ul class="nav nav-list">
+{% for comment in comments %}
+<li><a href="/document/{{ comment.document.slug }}/?page={{ comment.page }}">{{ comment.name }} auf Seite {{ comment.page }} im Dokument {{ comment.document.title }}</a></li>
+{% endfor %}
+</ul>
+</div>
+</div>
+</div>
+<div class="span3">
+<div class="well">
+<ul class="nav nav-list">
+<li class="nav-header">
+Kategorien
+</li>
 {% for category in categories %}
 <li><a href="/category/{{ category.slug }}/">{{ category.title }}</a></li>
 {% endfor %}
-</ul>
-<h1>Autoren:</h1>
-<ul>
+<li class="nav-header">
+Autoren
+</li>
 {% for author in authors %}
 <li><a href="/author/{{ author.slug }}/">{{ author.name }}</a></li>
 {% endfor %}
 </ul>
+</div>
+</div>
+</div>
 {% endblock %}

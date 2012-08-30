@@ -16,7 +16,7 @@ class Document(models.Model):
     author = models.ForeignKey('documents.Author',null=True,blank=True)
     pages = models.ManyToManyField('documents.Page',null=True,blank=True, related_name='document')
     version = models.IntegerField(default=1)
-    relations = models.ManyToManyField('documents.Relation',null=True,blank=True)
+    relations = models.ManyToManyField('documents.Relation',null=True,blank=True, related_name='document')
     categories = models.ManyToManyField('documents.Category',null=True,blank=True)
     created = models.DateTimeField(auto_now_add=True,null=True)
     modified = models.DateTimeField(auto_now=True, null=True)
@@ -44,6 +44,8 @@ class Paragraph(models.Model):
 class Relation(models.Model):
     type = models.IntegerField(max_length=1, choices=TYPE_CHOICES)
     comment = models.CharField(max_length=500)
+    allowed = models.BooleanField()
+    relatedDocument = models.ForeignKey(Document, null=True)
     created = models.DateTimeField(auto_now_add=True,null=True)
     modified = models.DateTimeField(auto_now=True,null=True)
 
@@ -67,3 +69,16 @@ class Author(models.Model):
     
     def __unicode__(self):
         return u'Author: %s' % self.name
+        
+class Comment(models.Model):
+    name = models.CharField(max_length=254)
+    ip = models.IPAddressField("IP",blank=True,null=True)
+    moderated = models.BooleanField()
+    comment = models.TextField(u"Kommentar", max_length=1000)
+    page = models.IntegerField(u"Seite", null=True)
+    document = models.ForeignKey(Document, null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+    
+    def __unicode__(self):
+        return u'Kommentar von %s zu Seite %i in Dokument %s' % (self.name, self.page, self.document.title)

@@ -1,7 +1,186 @@
 {% extends "base.html" %}
+{% block title %}- Dokument: {{ document.title }}{% endblock %}
 {% block body %}
+<div class="page-header">
 <h1>Dokument: {{ document.title }}</h1>
-{% for page in document.pages.all %}
-<img src="{{ MEDIA_URL }}documents/{{ document.slug }}/{{ document.slug }}-{{ forloop.counter0 }}.jpg"/>
+</div>
+<div class="row">
+<div class="span9">
+<div id="documentCarousel" class="carousel slide">
+  <!-- Carousel items -->
+  <div class="carousel-inner">
+    {% for page in document.pages.all %}
+    {% if forloop.first %}
+    <div class="item active"><img src="{{ MEDIA_URL }}documents/{{ document.slug }}/{{ document.slug }}-{{ forloop.counter0 }}.jpg" style="width:100%"/>
+    <div class="carousel-caption">
+    <h4>Seite: {{ page.number }}</h4>
+    </div>
+    </div>
+    {% else %}
+    <div class="item"><img src="{{ MEDIA_URL }}documents/{{ document.slug }}/{{ document.slug }}-{{ forloop.counter0 }}.jpg" style="width:100%"/>
+    <div class="carousel-caption">
+    <h4>Seite: {{ page.number }}</h4>
+    </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+  <!-- Carousel nav -->
+  <a class="carousel-control left" href="#documentCarousel" data-slide="prev">&lsaquo;</a>
+  <a class="carousel-control right" href="#documentCarousel" data-slide="next">&rsaquo;</a>
+</div>
+</div>
+<div class="span3">
+<div class="well">
+<h3>Daten</h3>
+<dt>Autor</dt>
+<dd>{{ document.author.name }}</dd>
+{% if document.author.institution %}
+<dd>{{ document.author.institution %}</dd>
+{% endif %}
+<dt>Erstellt</dt>
+<dd>{{ document.documentCreated }}</dd>
+<dt>Modifiziert</dt>
+<dd>{{ document.documentModified }}</dd>
+<h3>Beziehungen</h3>
+{% for relation in relations %}
+<dd><a rel="popover" data-content="{{ relation.comment }}" data-original-title="Kommentar:">{{ relation.get_type_display }} mit {{ relation.relatedDocument.title }}</a></dd>
+{% empty %}
+<dd>Bisher keine Beziehung</dd>
 {% endfor %}
+<hr/>
+<i class="icon-plus-sign"></i><a data-toggle="modal" href="#newRelationModal"> Neue Beziehung vorschlagen</a>
+<div class="modal fade" id="newRelationModal">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>Neue Beziehung vorschlagen:</h3>
+  </div>
+  <div class="modal-body">
+   {% if relation_message %}
+       <div class="alert">
+       {{ relation_message }}
+       </div>
+  {% endif %}
+    <form enctype="multipart/form-data" class="form-horizontal" action="/document/{{ document.slug }}/" method="post">{% csrf_token %}
+    {% for field in relation_form %}
+    	<div class="control-group">
+    		{% if field.errors %}
+    		<div class="alert alert-error">
+				<strong>Fehler! </strong>{{ field.errors }}
+			</div>
+    		{% endif %}
+			<div class="control-label">
+        	{{ field.label_tag }}
+        	</div>
+        	<div class="controls">
+        	{{ field }}
+        	</div>
+        </div>
+    {% endfor %}
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn" data-dismiss="modal">Close</a>
+    <input name="relationform" type="submit" class="btn btn-primary" value="Senden" />
+  </form>
+  </div>
+</div>
+</div>
+</div>
+</div>
+<div class="row">
+  <div class="span9">
+  <h2>Kommentare</h2>
+  <hr/>
+  {% if comments %}
+  {% for comment in comments %}
+  <div class="row">
+  <div class="span9">
+  <div class="well">
+  <strong>Name: </strong>{{ comment.name }} {% if comment.page %} &bull; <strong>Seite: </strong><a class="page">{{ comment.page }}</a>{% endif %}
+  <div class="comment-body">
+  {{ comment.comment }}
+  </div>
+  </div>
+  </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="row">
+  <div class="span8">
+  <div class="well">
+  <p>Bis jetzt keine Kommentare</p>
+  </div>
+  </div>
+  </div>
+  {% endif %}
+  {% if message %}
+  <div class="alert">
+  {{ message }}
+  </div>
+  {% endif %}
+    <hr/>
+  <form enctype="multipart/form-data" class="form-horizontal" action="/document/{{ document.slug }}/" method="post">{% csrf_token %}
+    {% for field in comment_form %}
+    	<div class="control-group">
+    		{% if field.errors %}
+    		<div class="alert alert-error">
+				<strong>Fehler! </strong>{{ field.errors }}
+			</div>
+    		{% endif %}
+			<div class="control-label">
+        	{{ field.label_tag }}
+        	</div>
+        	<div class="controls">
+        	{{ field }}
+        	</div>
+        </div>
+    {% endfor %}
+<div class="form-actions">
+<input name="commentform" type="submit" class="btn btn-primary" value="Senden" />
+</div>
+</form>
+  </div>
+  </div>
+  </div>
+{% endblock %}
+{% block javascript %}
+<script src="{{ STATIC_URL }}/bootstrap/js/bootstrap-carousel.js"></script>
+<script src="{{ STATIC_URL }}/bootstrap/js/bootstrap-tooltip.js">
+</script><script src="{{ STATIC_URL }}/bootstrap/js/bootstrap-popover.js"></script>
+
+<script>
+    $('#documentCarousel').carousel({ interval: false });
+    $('#documentCarousel').bind('slid', function() {
+        $('#id_page').val($('#documentCarousel .active').index('#documentCarousel .item')+1);
+    });
+$(document).ready(function() {
+var page = getUrlVars()["page"];
+if (page){
+    $('#documentCarousel').carousel(page-1);
+}
+$('#id_page').val($('#documentCarousel .active').index('#documentCarousel .item')+1);
+});
+function getUrlVars() {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    return vars;
+}
+$('.page').click(function(){
+    $('#documentCarousel').carousel(this.text -1);
+	return false;
+})
+
+$("[rel=popover]").popover({ placement:"bottom", delay: { show: 100, hide: 100 }});
+
+$('#newRelationModal').modal({
+  keyboard: true,
+  {% if relation_form_invalid or relation_message %}
+  show: true
+  {% else %}
+  show: false
+  {% endif %}
+})
+</script>
 {% endblock %}
