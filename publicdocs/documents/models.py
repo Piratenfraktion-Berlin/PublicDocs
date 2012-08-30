@@ -68,7 +68,7 @@ class Author(models.Model):
     slug = AutoSlugField(populate_from='name',unique=True,null=True)
     
     def __unicode__(self):
-        return u'Author: %s' % self.name
+        return u'Autor: %s' % self.name
         
 class Comment(models.Model):
     name = models.CharField(max_length=254)
