@@ -1,0 +1,51 @@
+
+  <h2>Kommentare</h2>
+  <hr/>
+  {% if comments %}
+  {% for comment in comments %}
+  <div class="row">
+  <div class="span9">
+  <div class="well">
+  <strong>Name: </strong>{{ comment.name }} {% if comment.page %} &bull; <strong>Seite: </strong><a class="page">{{ comment.page }}</a>{% endif %}
+  <div class="comment-body">
+  {{ comment.comment }}
+  </div>
+  </div>
+  </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="row">
+  <div class="span8">
+  <div class="well">
+  <p>Bis jetzt keine Kommentare</p>
+  </div>
+  </div>
+  </div>
+  {% endif %}
+  {% if message %}
+  <div class="alert">
+  {{ message }}
+  </div>
+  {% endif %}
+    <hr/>
+  <form enctype="multipart/form-data" class="form-horizontal" action="/document/{{ document.slug }}/" method="post">{% csrf_token %}
+    {% for field in comment_form %}
+      <div class="control-group">
+        {% if field.errors %}
+        <div class="alert alert-error">
+        <strong>Fehler! </strong>{{ field.errors }}
+      </div>
+        {% endif %}
+      <div class="control-label">
+          {{ field.label_tag }}
+          </div>
+          <div class="controls">
+          {{ field }}
+          </div>
+        </div>
+    {% endfor %}
+<div class="form-actions">
+<input name="commentform" type="submit" class="btn btn-primary" value="Senden" />
+</div>
+</form>

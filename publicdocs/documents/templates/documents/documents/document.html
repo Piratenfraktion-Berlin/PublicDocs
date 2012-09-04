@@ -1,0 +1,32 @@
+{% extends "documents/base.html" %}
+{% block title %}- Dokument: {{ document.title }}{% endblock %}
+{% block body %}
+<div class="page-header">
+<h1>Dokument: {{ document.title }}</h1>
+</div>
+
+<div class="row">
+  <div class="span9">
+    {% include "documents/documents/document/content.html" %}
+  </div>
+  <div class="span3">
+    {% include "documents/documents/document/sidebar.html" %}
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="span9">
+    {% include "documents/documents/document/comments.html" %}
+  </div>
+</div>
+
+  
+{% endblock %}
+{% block javascript %}
+<script src="{{ STATIC_URL }}/bootstrap/js/bootstrap-carousel.js"></script>
+<script src="{{ STATIC_URL }}/bootstrap/js/bootstrap-tooltip.js">
+</script><script src="{{ STATIC_URL }}/bootstrap/js/bootstrap-popover.js"></script>
+
+{% include "documents/documents/document/content_js.html" %}
+{% endblock %}

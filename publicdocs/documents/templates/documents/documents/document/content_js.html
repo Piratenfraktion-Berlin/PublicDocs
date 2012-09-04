@@ -1,0 +1,38 @@
+<script>
+    
+$(document).ready(function() {
+  $('#documentCarousel').carousel({ interval: false });
+    $('#documentCarousel').bind('slid', function() {
+        $('#id_page').val($('#documentCarousel .active').index('#documentCarousel .item')+1);
+    });
+  
+  
+var page = getUrlVars()["page"];
+if (page){
+    $('#documentCarousel').carousel(page-1);
+}
+$('#id_page').val($('#documentCarousel .active').index('#documentCarousel .item')+1);
+});
+function getUrlVars() {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    return vars;
+}
+$('.page').click(function(){
+    $('#documentCarousel').carousel(this.text -1);
+  return false;
+})
+
+$("[rel=popover]").popover({ placement:"bottom", delay: { show: 100, hide: 100 }});
+
+$('#newRelationModal').modal({
+  keyboard: true,
+  {% if relation_form_invalid or relation_message %}
+  show: true
+  {% else %}
+  show: false
+  {% endif %}
+})
+</script>
