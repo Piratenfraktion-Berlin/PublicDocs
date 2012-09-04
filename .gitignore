@@ -2,3 +2,10 @@
 *.pot
 *.pyc
 local_settings.py
+.DS_Store
+.settings
+.project
+.pydevproject
+sqlite3.db
+settings.py
+publicdocs/media

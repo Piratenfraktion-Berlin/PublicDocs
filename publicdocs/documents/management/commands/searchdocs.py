@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from documents.models import *
 
+from django.conf import settings
 from django.utils.encoding import smart_unicode
 
 from documents import layout_scanner
@@ -8,6 +9,9 @@ import os
 import hashlib
 import time, datetime
 import subprocess
+
+DOCS_ROOT = settings.MEDIA_ROOT + '/documents/'
+
 
 class Command(BaseCommand):
     args = 'folder'
@@ -76,10 +80,10 @@ class Command(BaseCommand):
                             new_category.save()
                             document.categories.add(new_category)
                             document.save()
-                        if not os.path.exists("/opt/publicdocs/PublicDocs/publicdocs/media/documents/" + document.slug ):
-                            os.makedirs("/opt/publicdocs/PublicDocs/publicdocs/media/documents/" + document.slug)
+                        if not os.path.exists(DOCS_ROOT + document.slug ):
+                            os.makedirs(DOCS_ROOT + document.slug)
                         file_name = smart_unicode(files, encoding='utf-8', strings_only=False, errors='strict')
-                        outcode = subprocess.Popen(u"/usr/bin/convert -quality 90% '"  + file_name + "' /opt/publicdocs/PublicDocs/publicdocs/media/documents/" + document.slug + "/" + document.slug + ".jpg", shell=True)
+                        outcode = subprocess.Popen(u"convert -quality 90% '"  + file_name + "' " + DOCS_ROOT + document.slug + "/" + document.slug + ".jpg", shell=True)
                         while outcode.poll() == None:
                             pass
                         
