@@ -2,7 +2,11 @@ from documents.models import *
 
 from django.contrib import admin
 
-admin.site.register(Document)
+
+class DocumentAdmin(admin.ModelAdmin):
+    list_display = ('title',)
+
+admin.site.register(Document, DocumentAdmin)
 admin.site.register(Author)
 admin.site.register(Paragraph)
 admin.site.register(Page)
